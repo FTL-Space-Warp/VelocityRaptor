@@ -61,11 +61,7 @@ vrMaterial vrMaterialInit()
 	return material;
 }
 
-inline void vrBodyApplyImpulse(vrRigidBody * body, const vrVec2 impulse, const vrVec2 point)
-{
-	body->velocity = vrAdd(body->velocity, vrScale(impulse, body->bodyMaterial.invMass));
-	body->angularVelocity += body->bodyMaterial.invMomentInertia * vrCross(point, impulse);
-}
+extern inline void vrBodyApplyImpulse(vrRigidBody * body, const vrVec2 impulse, const vrVec2 point);
 
 void vrBodyDestroy(vrRigidBody * body)
 {
@@ -222,7 +218,7 @@ vrFloat vrMomentForPoly(vrPolygonShape * shape, vrFloat mass)
 		v = shape->vertices[0];
 		v1 = shape->vertices[1];
 		v2 = shape->vertices[2];
-		
+
 		P = vrSub(v1, v);
 		Q = vrSub(v2, v);
 		return (mass / 6.0)*(vrDot(P, P) + vrDot(P, Q) + vrDot(Q, Q));

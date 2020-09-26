@@ -104,7 +104,7 @@ void vrManifoldPostStep(vrManifold * manifold, vrFloat dt)
 	vrFloat allowedPenetration = 0.1;
 	for (int i = 0; i < manifold->contact_points; i++)
 	{
-		
+
 		//Recompute points
 		vrVec2 rb = vrGetLocalPoint(&manifold->contacts[i].contactAnchor);
 		vrVec2 p = vrAdd(manifold->B->center, rb);
@@ -128,10 +128,8 @@ void vrManifoldPostStep(vrManifold * manifold, vrFloat dt)
 
 }
 
-vrVec2 vrManifoldRelativeVelocity(vrRigidBody * a, vrRigidBody * b, vrVec2 ra, vrVec2 rb)
-{
-	return vrSub(vrAdd(b->velocity, vrCrossScalar(b->angularVelocity, rb)), vrAdd(a->velocity, vrCrossScalar(a->angularVelocity, ra)));
-}
+extern inline vrVec2 vrManifoldRelativeVelocity(vrRigidBody * a, vrRigidBody * b, vrVec2 ra, vrVec2 rb);
+
 
 void vrManifoldSolveVelocity(vrManifold * manifold)
 {
@@ -222,7 +220,7 @@ vrVec2 vrManifoldGuassSeidel(vrBlockSolverData solverData)
 	int iter = 100;
 	vrVec2 x = vrVect(0, 0);
 	float delta = 0;
-	//Relaxation 
+	//Relaxation
 	vrFloat w = 0.78;
 	//Guass-Seidel with SOR
 	//I simplified it because I knew the size
@@ -328,14 +326,7 @@ void vrManifoldApplyImpulse(vrRigidBody * A, vrRigidBody * B, vrVec2 ra, vrVec2 
 	B->angularVelocity += B->bodyMaterial.invMomentInertia * vrCross(rb, impulse);
 }
 
-void vrManifoldApplyBiasImpulse(vrRigidBody * A, vrRigidBody * B, vrVec2 ra, vrVec2 rb, vrVec2 impulse)
-{
-	A->vel_bias = vrSub(A->vel_bias, vrScale(impulse, A->bodyMaterial.invMass));
-	A->angv_bias -= A->bodyMaterial.invMomentInertia * vrCross(ra, impulse);
-
-	B->vel_bias = vrAdd(B->vel_bias, vrScale(impulse, B->bodyMaterial.invMass));
-	B->angv_bias += B->bodyMaterial.invMomentInertia * vrCross(rb, impulse);
-}
+extern inline void vrManifoldApplyBiasImpulse(vrRigidBody * A, vrRigidBody * B, vrVec2 ra, vrVec2 rb, vrVec2 impulse);
 
 void vrManifoldAddContactPoints(vrManifold* old_manifold, const vrManifold new_manifold)
 {
@@ -381,7 +372,4 @@ void vrManifoldSetBodies(vrManifold * manifold, vrRigidBody * b1, vrRigidBody * 
 	}
 }
 
-vrFloat vrManifoldGetContactVel(vrManifold * manifold, int index)
-{
-	return vrDot(vrManifoldRelativeVelocity(manifold->A, manifold->B, manifold->contacts[index].ra, manifold->contacts[index].rb), manifold->normal);
-}
+extern inline vrFloat vrManifoldGetContactVel(vrManifold * manifold, int index);

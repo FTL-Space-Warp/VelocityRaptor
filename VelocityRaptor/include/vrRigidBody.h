@@ -27,7 +27,7 @@
 /// Of the body
 typedef struct vrMaterial
 {
-	///Bounciness 
+	///Bounciness
 	vrFloat restitution;
 	///Friction
 	vrFloat friction;
@@ -105,10 +105,14 @@ void vrBodySet(vrRigidBody* body, vrVec2 position, vrFloat angle);
 ///Initializes and returns default values
 vrMaterial vrMaterialInit();
 ///Applies an impulse
-extern inline void vrBodyApplyImpulse(vrRigidBody* body, const vrVec2 impulse, const vrVec2 point);
+inline void vrBodyApplyImpulse(vrRigidBody* body, const vrVec2 impulse, const vrVec2 point)
+{
+	body->velocity = vrAdd(body->velocity, vrScale(impulse, body->bodyMaterial.invMass));
+	body->angularVelocity += body->bodyMaterial.invMomentInertia * vrCross(point, impulse);
+}
 ///Integrates the forces being applied to a body
 void vrBodyIntegrateForces(vrRigidBody* body, vrFloat dt);
-///Integrates the velocity 
+///Integrates the velocity
 void vrBodyIntegrateVelocity(vrRigidBody* body, vrFloat dt);
 ///Updates the body's obb
 void vrBodyUpdateOBB(vrRigidBody* body);
@@ -122,4 +126,3 @@ vrFloat vrMomentForCircle(vrFloat radius, vrFloat mass);
 vrFloat vrAreaForPoly(vrPolygonShape* shape);
 
 #endif
-

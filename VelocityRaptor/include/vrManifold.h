@@ -69,7 +69,7 @@ typedef struct vrBlockSolverData
 	///Effective mass for contacts
 	vrVec2 effMass;
 	///Effective mass in matrix form
-	vrMat2 A; 
+	vrMat2 A;
 	///Contact Velocity (relative velocity dot normal)
 	vrVec2 contactVel;
 	///Initial guess
@@ -131,7 +131,10 @@ void vrManifoldPreStep(vrManifold* manifold, vrFloat dt);
 ///Re calculated each iteration for position
 void vrManifoldPostStep(vrManifold* manifold, vrFloat dt);
 ///Calculates relative velocity between points on two bodies
-extern inline vrVec2 vrManifoldRelativeVelocity(vrRigidBody* a, vrRigidBody* b, vrVec2 ra, vrVec2 rb);
+inline vrVec2 vrManifoldRelativeVelocity(vrRigidBody* a, vrRigidBody* b, vrVec2 ra, vrVec2 rb)
+{
+	return vrSub(vrAdd(b->velocity, vrCrossScalar(b->angularVelocity, rb)), vrAdd(a->velocity, vrCrossScalar(a->angularVelocity, ra)));
+}
 ///Solves the local velocity
 void vrManifoldSolveVelocity(vrManifold* manifold);
 ///Solves the local position
@@ -145,12 +148,22 @@ vrVec2 vrManifoldConjugateGradient(vrBlockSolverData solverData, vrFloat toleran
 ///Applies impulses from a point
 void vrManifoldApplyImpulse(vrRigidBody* A, vrRigidBody* b, vrVec2 ra, vrVec2 rb, vrVec2 impulse);
 ///Applies bias impulses from a point (bias impulses don't create energy)
-extern inline void vrManifoldApplyBiasImpulse(vrRigidBody* A, vrRigidBody* B, vrVec2 ra, vrVec2 rb, vrVec2 impulse);
+inline void vrManifoldApplyBiasImpulse(vrRigidBody* A, vrRigidBody* B, vrVec2 ra, vrVec2 rb, vrVec2 impulse)
+{
+	A->vel_bias = vrSub(A->vel_bias, vrScale(impulse, A->bodyMaterial.invMass));
+	A->angv_bias -= A->bodyMaterial.invMomentInertia * vrCross(ra, impulse);
+
+	B->vel_bias = vrAdd(B->vel_bias, vrScale(impulse, B->bodyMaterial.invMass));
+	B->angv_bias += B->bodyMaterial.invMomentInertia * vrCross(rb, impulse);
+}
 ///Updates contact points
 void vrManifoldAddContactPoints(vrManifold* old_manifold, const vrManifold new_manifold);
 ///Sets bodies
 void vrManifoldSetBodies(vrManifold* manifold, vrRigidBody* b1, vrRigidBody* b2);
 ///The relative velocity along the normal
-extern inline vrFloat vrManifoldGetContactVel(vrManifold* manifold, int index);
+inline vrFloat vrManifoldGetContactVel(vrManifold* manifold, int index)
+{
+	return vrDot(vrManifoldRelativeVelocity(manifold->A, manifold->B, manifold->contacts[index].ra, manifold->contacts[index].rb), manifold->normal);
+}
 
 #endif
